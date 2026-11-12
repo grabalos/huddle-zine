@@ -1,0 +1,319 @@
+:root {
+  --yellow: #efd652;
+  --ink: #141414;
+  --paper: #efebdf;
+  /* Stage = the 3:2 photo. Cover the window when possible, but always keep the
+     zine (52% of the photo width) and the flyer (69% of its height) fully visible
+     with room for the controls underneath. */
+  --chrome: 170px;
+  --stage-w: min(
+    max(100vw, 150vh),
+    calc((100vw - 48px) / 0.52),
+    calc((100vh - var(--chrome)) / 0.693 * 1.5)
+  );
+  /* Geometry measured from the source images (percent of the zine crop). */
+  --axis-x: 48.7%;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #12100e;
+  color: var(--paper);
+  font-family: 'Special Elite', 'Courier New', monospace;
+}
+
+/* ---------- atmosphere ---------- */
+
+.backdrop {
+  position: fixed;
+  inset: -60px;
+  background: url(../assets/backdrop.jpg) center / cover no-repeat;
+  filter: blur(18px) brightness(0.45) saturate(0.85);
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 70% at 50% 47%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  z-index: 5;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- stage ---------- */
+
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--stage-w);
+  aspect-ratio: 3 / 2;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+body.is-ready .stage { opacity: 1; }
+
+.scene { position: absolute; inset: 0; }
+
+.bg {
+  position: absolute;
+  inset: 0;
+  background: url(../assets/bg.webp) center / 100% 100% no-repeat;
+}
+
+/* The zine crop: everything inside shares one coordinate system. */
+.zine {
+  position: absolute;
+  left: 23.9333%;
+  top: 17.55%;
+  width: 52%;
+  height: 63%;
+  perspective: calc(var(--stage-w) * 1.7);
+  perspective-origin: 50.13% 51.5%;
+}
+
+.pg, .shadow, .flipper, .face, .face-img, .tint, .hands, .hit {
+  position: absolute;
+  inset: 0;
+}
+
+.pg, .face-img, .hands {
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.hands { background-image: url(../assets/hands.webp); pointer-events: none; }
+
+.clip-l { clip-path: var(--clip-l); }
+.clip-r { clip-path: var(--clip-r); }
+
+/* Layers that only exist while a page is turning. */
+.under, .stay, .shadow, .flipper { visibility: hidden; }
+.zine.is-flipping .under,
+.zine.is-flipping .stay,
+.zine.is-flipping .shadow,
+.zine.is-flipping .flipper { visibility: visible; }
+.zine.is-flipping .current { visibility: hidden; }
+
+.shadow { pointer-events: none; --x: 0px; --sw: 0px; --sa: 0; }
+.shadow-r {
+  clip-path: var(--clip-r);
+  background: linear-gradient(90deg,
+    rgba(0, 0, 0, 0) var(--x),
+    rgba(0, 0, 0, var(--sa)) var(--x),
+    rgba(0, 0, 0, calc(var(--sa) * 0.4)) calc(var(--x) + var(--sw) * 0.35),
+    rgba(0, 0, 0, 0) calc(var(--x) + var(--sw)));
+}
+.shadow-l {
+  clip-path: var(--clip-l);
+  background: linear-gradient(90deg,
+    rgba(0, 0, 0, 0) calc(var(--x) - var(--sw)),
+    rgba(0, 0, 0, calc(var(--sa) * 0.4)) calc(var(--x) - var(--sw) * 0.35),
+    rgba(0, 0, 0, var(--sa)) var(--x),
+    rgba(0, 0, 0, 0) var(--x));
+}
+
+.flipper {
+  transform-style: preserve-3d;
+  transform-origin: var(--axis-x) 50%;
+  will-change: transform;
+  pointer-events: none;
+}
+.face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+/* The back face is mirrored about the (slightly tilted) spine, so after a
+   -180deg turn it lands exactly where the next spread's left page sits. */
+.face.back {
+  transform-origin: var(--axis-x) 50%;
+  transform: rotate3d(-0.01139, 1, 0, 180deg);
+}
+.tint { --ta: 0; --tb: 0; }
+.front .tint {
+  background: linear-gradient(90deg, rgba(0, 0, 0, var(--ta)) var(--axis-x), rgba(0, 0, 0, var(--tb)) 100%);
+}
+.back .tint {
+  background: linear-gradient(270deg, rgba(0, 0, 0, var(--ta)) calc(100% - var(--axis-x)), rgba(0, 0, 0, var(--tb)) 100%);
+}
+
+/* Click targets over each page. */
+.hit { z-index: 2; cursor: pointer; }
+.hit-prev { clip-path: var(--clip-l); }
+.hit-next { clip-path: var(--clip-r); }
+.hit.is-off { cursor: default; }
+
+/* ---------- flyer ---------- */
+
+.flyer-wrap {
+  position: absolute;
+  left: 32.9667%;
+  top: 15.05%;
+  width: 33.8667%;
+  height: 69.3%;
+  perspective: calc(var(--stage-w) * 1.4);
+  pointer-events: none;
+  visibility: hidden;
+}
+.flyer-wrap.is-visible { visibility: visible; }
+
+.flyer, .flyer-shadow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.flyer-shadow {
+  filter: brightness(0) blur(5px);
+  opacity: 0.38;
+  transform: translate(0.6%, 0.9%);
+}
+
+/* ---------- controls ---------- */
+
+.controls {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  opacity: 0;
+  transition: opacity 0.6s ease 0.4s;
+}
+body.is-ready .controls { opacity: 1; }
+
+.btn {
+  --rot: -2deg;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 124px;
+  justify-content: center;
+  padding: 12px 18px 11px;
+  font: 400 21px/1 'Anton', Impact, 'Arial Narrow', sans-serif;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--yellow);
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  transform: rotate(var(--rot));
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease, opacity 0.2s ease;
+}
+.btn-next { --rot: 1.5deg; }
+.btn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.2;
+  stroke-linecap: square;
+}
+.btn:hover:not(:disabled) { transform: rotate(0deg) translate(-2px, -2px); box-shadow: 7px 7px 0 var(--ink); }
+.btn:active:not(:disabled) { transform: rotate(0deg) translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.btn:focus-visible { outline: 3px dashed var(--yellow); outline-offset: 6px; }
+.btn:disabled { background: #8d8775; opacity: 0.45; cursor: not-allowed; box-shadow: 3px 3px 0 var(--ink); }
+
+.tape {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 14px;
+  min-width: 270px;
+  padding: 11px 30px 10px;
+  color: var(--ink);
+  background: rgba(239, 235, 223, 0.94);
+  transform: rotate(-1.2deg);
+  clip-path: polygon(0 8%, 3% 0, 6% 10%, 9% 2%, 91% 3%, 94% 0, 97% 9%, 100% 2%, 98% 50%, 100% 97%, 97% 90%, 94% 100%, 91% 93%, 9% 98%, 6% 91%, 3% 100%, 0 92%, 2% 50%);
+}
+.tape-count {
+  font: 400 15px/1 'Anton', Impact, sans-serif;
+  letter-spacing: 0.06em;
+  color: #6b665a;
+}
+.tape-count b { font-weight: 400; font-size: 27px; color: var(--ink); }
+.tape-title {
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.hint {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 10;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: rgba(239, 235, 223, 0.7);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+body.is-ready .hint { opacity: 1; transition-delay: 1.2s; }
+body.is-ready .hint.is-gone { opacity: 0; transition-delay: 0s; }
+
+/* ---------- music player (bare Spotify embed) ---------- */
+
+.player {
+  position: fixed;
+  top: 18px;
+  right: 16px;
+  z-index: 10;
+  width: 320px; /* the compact Spotify embed needs ~306px to show its play button */
+  min-height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #282828;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.6s ease 0.6s;
+}
+body.is-ready .player { opacity: 1; }
+.player iframe { display: block; border: 0; }
+.player[hidden] { display: none; }
+
+/* ---------- loader ---------- */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper);
+  transition: opacity 0.5s ease;
+}
+body.is-ready .loader { opacity: 0; pointer-events: none; }
+.caret { animation: blink 0.9s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }

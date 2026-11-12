@@ -1,0 +1,4 @@
+.DS_Store
+
+# Original high-res artwork (~40 MB each). The site only uses the optimized copies in assets/.
+images/

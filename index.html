@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team Huddle Zine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+
+  <main class="stage" id="stage" aria-label="Team Huddle zine">
+    <div class="scene" id="scene">
+      <div class="bg" aria-hidden="true"></div>
+
+      <div class="zine" id="zine" role="img" aria-label="Zine spread">
+        <div class="pg under" id="under"></div>
+        <div class="pg stay" id="stay"></div>
+        <div class="pg current" id="current"></div>
+        <div class="shadow shadow-l" id="shadowL"></div>
+        <div class="shadow shadow-r" id="shadowR"></div>
+        <div class="flipper" id="flipper">
+          <div class="face front"><div class="face-img clip-r" id="frontImg"><div class="tint"></div></div></div>
+          <div class="face back"><div class="face-img clip-l" id="backImg"><div class="tint"></div></div></div>
+        </div>
+        <div class="hands" aria-hidden="true"></div>
+        <div class="hit hit-prev" id="hitPrev" aria-hidden="true"></div>
+        <div class="hit hit-next" id="hitNext" aria-hidden="true"></div>
+      </div>
+
+      <div class="flyer-wrap" id="flyerWrap" aria-hidden="true">
+        <img class="flyer-shadow" id="flyerShadow" src="assets/flyer.webp" alt="">
+        <img class="flyer" id="flyer" src="assets/flyer.webp" alt="Flyer: The GfGb Method">
+      </div>
+    </div>
+  </main>
+
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="controls" aria-label="Zine navigation">
+    <button class="btn btn-prev" id="prev" type="button" aria-label="Previous page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 6 12l9 8"/></svg>
+      <span>Prev</span>
+    </button>
+    <div class="tape" aria-live="polite">
+      <span class="tape-count"><b id="count">01</b>/<span id="total">04</span></span>
+      <span class="tape-title" id="title">Welcome</span>
+    </div>
+    <button class="btn btn-next" id="next" type="button" aria-label="Next page">
+      <span id="nextLabel">Next</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true" id="nextIcon"><path d="M9 4l9 8-9 8"/></svg>
+    </button>
+  </nav>
+
+  <p class="hint" id="hint">← → keys, or click a page to flip</p>
+
+  <aside class="player" id="player" aria-label="Music player">
+    <div id="spotifyEmbed"></div>
+  </aside>
+
+  <div class="loader" id="loader">loading zine<span class="caret">_</span></div>
+
+  <script src="js/zine.js"></script>
+  <script src="js/player.js"></script>
+  <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+</body>
+</html>
