@@ -12,7 +12,7 @@
     { spread: 1, title: 'Round Table' },
     { spread: 1, flyer: true, title: 'The GfGb Method' },
   ];
-  const SPREADS = ['assets/spread-0.webp', 'assets/spread-1.webp', 'assets/spread-2.webp'];
+  const SPREADS = ['assets/spread-0.webp?v=2', 'assets/spread-1.webp', 'assets/spread-2.webp?v=2'];
   const PRELOAD = [...SPREADS, 'assets/bg.webp', 'assets/hands.webp', 'assets/flyer.webp'];
 
   /* ------------------------------------------------------------------
@@ -238,6 +238,16 @@
       index += dir;
     }
     busy = false;
+    settle();
+  }
+
+  // Tell js/extras.js which spread is resting on screen (photo zoom, round table…).
+  function settle() {
+    const step = STEPS[index];
+    zine.dataset.spread = step.spread;
+    zine.dataset.flyer = step.flyer ? '1' : '0';
+    zine.classList.add('is-settled');
+    document.dispatchEvent(new CustomEvent('zine:settled', { detail: { spread: step.spread, flyer: !!step.flyer } }));
   }
 
   function goTo(i) {
@@ -245,6 +255,8 @@
     if (t === target) return;
     target = t;
     $('hint').classList.add('is-gone');
+    zine.classList.remove('is-settled');
+    document.dispatchEvent(new CustomEvent('zine:leave'));
     updateUI();
     pump();
   }
@@ -322,6 +334,9 @@
   updateUI();
 
   Promise.all(PRELOAD.map(load)).then(() => {
-    requestAnimationFrame(() => document.body.classList.add('is-ready'));
+    requestAnimationFrame(() => {
+      document.body.classList.add('is-ready');
+      settle();
+    });
   });
 })();

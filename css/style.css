@@ -47,7 +47,7 @@ html, body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 6;
+  z-index: 8;
   opacity: 0.07;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -67,7 +67,12 @@ html, body {
 }
 body.is-ready .stage { opacity: 1; }
 
-.scene { position: absolute; inset: 0; }
+/* The "camera": js/extras.js moves it in on a photo. */
+.scene {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.95s cubic-bezier(0.65, 0, 0.25, 1);
+}
 
 .bg {
   position: absolute;
@@ -156,6 +161,152 @@ body.is-ready .stage { opacity: 1; }
 .hit-prev { clip-path: var(--clip-l); }
 .hit-next { clip-path: var(--clip-r); }
 .hit.is-off { cursor: default; }
+
+/* ---------- photo zoom + round table (js/extras.js) ---------- */
+
+/* Sharper copy of a polaroid, faded in while the camera is close. */
+.photo-hi {
+  position: absolute;
+  background-size: 100% 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.photo-hi.is-on { opacity: 1; }
+
+/* Round Table stickers: exact copies of the page, only shown while they jump. */
+.stickers { position: absolute; inset: 0; pointer-events: none; visibility: hidden; }
+.stickers.is-on { visibility: visible; }
+.stickers img { position: absolute; display: block; }
+
+.zine.is-flipping .photo-hi,
+.zine.is-flipping .stickers { visibility: hidden; }
+
+.hot {
+  position: absolute;
+  z-index: 3;
+  display: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  transition: background-color 0.25s ease;
+}
+.zine.is-settled[data-spread="2"] .hot-photo { display: block; cursor: zoom-in; }
+.zine.is-settled[data-spread="1"][data-flyer="0"] .hot-wheel { display: block; cursor: pointer; border-radius: 50%; }
+.hot:hover { background-color: rgba(255, 248, 225, 0.07); }
+.hot:focus-visible { outline: 3px dashed var(--yellow); outline-offset: 4px; }
+body.is-focused .hot:hover,
+body.is-asking .hot:hover { background-color: transparent; }
+
+.focus-vignette,
+.scrim {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+.focus-vignette {
+  z-index: 5;
+  background: radial-gradient(ellipse 46% 60% at 50% 45%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.6) 100%);
+  transition: opacity 0.9s ease;
+}
+body.is-focused .focus-vignette { opacity: 1; }
+.scrim {
+  z-index: 6;
+  background: rgba(14, 11, 9, 0.62);
+  transition: opacity 0.5s ease;
+}
+body.is-asking .scrim { opacity: 1; }
+
+/* Click anywhere to step back out. */
+.catcher { position: fixed; inset: 0; z-index: 9; display: none; }
+body.is-focused .catcher { display: block; cursor: zoom-out; }
+body.is-asking .catcher { display: block; cursor: pointer; }
+
+/* ---------- vinyl letters ---------- */
+
+.vinyl-layer { position: fixed; inset: 0; z-index: 7; pointer-events: none; }
+
+.vinyl {
+  position: absolute;
+  font-family: 'Roboto Condensed', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0.02em;
+  color: #d3121c;
+  transform-origin: 0 50%;
+}
+.vinyl-line { display: block; white-space: nowrap; }
+
+/* Name + subtitle stuck under a zoomed photo. */
+.vinyl-group { position: absolute; transform-origin: 0 50%; }
+.vinyl-group .vinyl { position: relative; }
+.vinyl-sub { margin: 0.35em 0 0 0.6em; letter-spacing: 0.035em; transform: rotate(1.5deg); }
+.vw { display: inline-block; white-space: nowrap; }
+
+/* One sticker per letter: red vinyl, a kiss-cut white rim, a small lift. */
+.vl {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  filter: drop-shadow(0 0.05em 0.04em rgba(0, 0, 0, 0.45));
+}
+.vl::before,
+.vl::after {
+  content: attr(data-c);
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+.vl::before {
+  z-index: -1;
+  color: #fbf8ef;
+  -webkit-text-stroke: 0.12em #fbf8ef;
+  text-shadow:
+    0.075em 0 0 #fbf8ef, -0.075em 0 0 #fbf8ef, 0 0.075em 0 #fbf8ef, 0 -0.075em 0 #fbf8ef,
+    0.053em 0.053em 0 #fbf8ef, -0.053em 0.053em 0 #fbf8ef, 0.053em -0.053em 0 #fbf8ef, -0.053em -0.053em 0 #fbf8ef,
+    0.069em 0.029em 0 #fbf8ef, -0.069em 0.029em 0 #fbf8ef, 0.069em -0.029em 0 #fbf8ef, -0.069em -0.029em 0 #fbf8ef,
+    0.029em 0.069em 0 #fbf8ef, -0.029em 0.069em 0 #fbf8ef, 0.029em -0.069em 0 #fbf8ef, -0.029em -0.069em 0 #fbf8ef;
+}
+/* a little gloss on the vinyl */
+.vl::after {
+  color: transparent;
+  background: linear-gradient(172deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0) 46%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.questions {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  width: min(1040px, 88vw);
+  display: grid;
+  gap: 0.7em;
+  justify-items: center;
+}
+.vinyl-q {
+  position: relative;
+  max-width: 100%;
+  text-align: center;
+  line-height: 1.22;
+}
+.vinyl-q .vinyl-line { white-space: normal; text-wrap: balance; }
+.vinyl-q1 { transform: rotate(-1.6deg); }
+.vinyl-q2 { transform: rotate(1.2deg); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
 
 /* ---------- flyer ---------- */
 
