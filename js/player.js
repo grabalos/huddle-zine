@@ -8,7 +8,7 @@
    * Paste that <ID> below. Albums and tracks work too:
    *   'spotify:album:<ID>'  or  'spotify:track:<ID>'
    * ------------------------------------------------------------------ */
-  const SPOTIFY_URI = 'spotify:playlist:4qghkHhgTyiHvRuzvNMVAr';
+  const SPOTIFY_URI = 'spotify:playlist:0l1NivhAWqmbUjXZyo03LE';
 
   const LOAD_TIMEOUT_MS = 8000;
 
