@@ -16,10 +16,8 @@
   const PHOTOS = [
     { id: 'topofmind', label: 'Top of Mind', box: [170, 318, 690, 945],
       quad: [[200, 333], [670, 342], [660, 928], [185, 885]] },
-    { id: 'yohannes', label: 'Yohannes Hailu', sub: 'Sciens AI GFGB PoC', box: [1050, 28, 1482, 532],
-      quad: [[1065, 47], [1465, 40], [1467, 512], [1080, 517]] },
-    { id: 'heveliz', label: 'Heveliz “Heve”\nFeldmann', sub: 'HOW TO BE CRAZY WITHOUT GETTING CRAZY?', box: [776, 536, 1222, 1054],
-      quad: [[830, 550], [1207, 588], [1182, 1042], [790, 1003]] },
+    { id: 'dominique', label: 'Dominique\nBradshaw', sub: 'WHO DOES THE MODEL MISS?', box: [1030, 58, 1478, 560],
+      quad: [[1090, 73], [1462, 112], [1417, 544], [1045, 505]] },
   ];
 
   // Cut out of spread-1 (percent of the zine: left, top, width, height), bottom to top.

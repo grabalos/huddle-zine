@@ -12,7 +12,7 @@
     { spread: 1, title: 'Round Table' },
     { spread: 1, flyer: true, title: 'The GfGb Method' },
   ];
-  const SPREADS = ['assets/spread-0.webp?v=2', 'assets/spread-1.webp', 'assets/spread-2.webp?v=2'];
+  const SPREADS = ['assets/spread-0.webp?v=2', 'assets/spread-1.webp', 'assets/spread-2.webp?v=3'];
   const PRELOAD = [...SPREADS, 'assets/bg.webp', 'assets/hands.webp', 'assets/flyer.webp'];
 
   /* ------------------------------------------------------------------
